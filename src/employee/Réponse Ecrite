@@ -1,0 +1,198 @@
+Partie A:
+
+1) Pourquoi la classe Employee est abstraite ?
+    La classe est abstraite car c'est une classe "trop général", la classe Employee
+    n'a pas de type précis. Si elle reçoit un role précis comme developper: ici la
+    classe a un ROLE, elle ne peut donc plus etre abstraite. Le faite de rendre la classe
+    abstraite permet qu'elle serve de base (classe mère) au autres classe (classe fille).
+    Cela permet aussi de ne pas l'instancier.
+
+2) Pourquoi calculateSalary() doit-elle être abstraite ?
+    Chaque employee, quelque soit son rôle dans l'entreprise est payé d'une manière propre et
+    unique. L'avantage de la rendre abstraite c'est que cela force chaque classe fille
+    a définir sa propre implémentation de calcul salariale.
+
+3) Méthode métier commune ajoutée:
+    describe(): sort une description de chaque employée, son nom, son salaire, etc...
+    en utilisant la methode calculateSalary(). Elle est défini dans la classe Employee
+    pour qu'elle puisse etre utilisé dans toute les sous-classe (classe fille).
+
+
+Partie B:
+
+1) Différence entre override et overload
+    override: on redéfinis une méthode hérité d'une classe mère avec le même nom exact
+    comme le calcul des salaires, redéfinis dans la classe Manager
+
+    overload: plusieur méthode avec le meme nom définis mais avec des paramètres
+    différents. Comme dans la classe BackendDeveloper où calculateSalary() est définis avec
+    le paramètre (int months)
+
+Partie C:
+
+1) Les deux appels successifs à super()
+    Quand on crée un BackendDeveloper, son constructeur appelle super(name, baseSalary),
+    donc le constructeur de Developer. Celui-ci appelle à son tour super(name), donc
+    le constructeur de Employee. La construction remonte toute la hiérarchie: Employee
+    initialise le nom, Developer initialise le salaire de base, et BackendDeveloper
+    initialise la prime technique. Chaque classe s'occupe de sa propre partie.
+
+2) Surcharge de calculateSalary
+    J'ai ajouté calculateSalary(int months) dans BackendDeveloper, qui renvoie le salaire
+    sur plusieurs mois. Ça a un sens métier, par exemple pour calculer un salaire annuel
+    (12 mois). C'est une surcharge et pas une redéfinition car elle a un paramètre en plus.
+
+
+Partie D:
+
+1) Pourquoi une classe peut implémenter plusieurs interfaces ?
+    En Java une classe ne peut hériter que d'une seule classe mère, sinon il pourrait y
+    avoir un conflit si les deux classes mères avaient la même méthode avec un code
+    différent. Une interface ne contient presque que des signatures de méthodes, sans
+    code ni attributs, donc il n'y a pas ce problème. Une classe peut donc en implémenter
+    plusieurs, comme Manager qui est à la fois Payable et Reportable.
+
+2) Comparaison interface / classe abstraite
+    classe abstraite: représente ce qu'est l'objet ("est un"). Elle peut avoir des
+    attributs, un constructeur et des méthodes avec du code. Une classe ne peut en
+    hériter que d'une seule. Exemple: Employee.
+
+    interface: représente ce que l'objet sait faire ("sait faire"). Elle n'a pas
+    d'attributs ni de constructeur, juste des méthodes à implémenter (sauf les méthodes
+    default). Une classe peut en implémenter plusieurs. Exemple: Payable, Reportable.
+
+3) Méthode default
+    reportHeader() dans Reportable a déjà un code par défaut. Les classes qui
+    implémentent Reportable la reçoivent automatiquement. Dans Manager je l'ai redéfinie
+    avec @Override, donc c'est la version de Manager qui s'affiche et pas celle de
+    l'interface.
+
+
+Partie E:
+
+1) Pourquoi une seule boucle suffit malgré trois classes concrètes ?
+    Tous les objets de la liste sont des Employee, et Employee possède la méthode
+    calculateSalary(). La boucle peut donc l'appeler sur chaque objet sans savoir son
+    type exact. Chaque objet utilise automatiquement sa propre version de la méthode,
+    pas besoin de faire des if pour tester le type.
+
+2) Type déclaré et type réel
+    Alice: type déclaré Employee, type réel Developer
+    Bob: type déclaré Employee, type réel Manager
+    Chloé: type déclaré Employee, type réel BackendDeveloper
+    Lucas: type déclaré Employee, type réel FrontendDeveloper
+
+    Le type déclaré définit quelles méthodes on peut appeler, le type réel définit
+    quelle version de la méthode est exécutée.
+
+3) Rôle de la liaison dynamique
+    C'est le mécanisme qui choisit, au moment de l'exécution, quelle version de la
+    méthode utiliser selon le type réel de l'objet. C'est grâce à ça que
+    employee.calculateSalary() appelle le calcul du Manager quand l'objet est un Manager.
+
+
+Partie F:
+
+1) Identifier l'upcasting
+    Employee employee = new BackendDeveloper("David", 4000, 700);
+    Employee e = new Developer("Emma", 3000);
+    On met un objet d'une classe fille dans une variable du type de la classe mère.
+
+2) Pourquoi l'upcasting est sûr et implicite
+    Une classe fille possède tout ce que possède sa classe mère: un BackendDeveloper
+    est forcément un Employee. La conversion ne peut donc jamais échouer, Java la fait
+    tout seul sans qu'on écrive de cast. Par contre on ne peut utiliser que les méthodes
+    de Employee à travers cette variable.
+
+3) Risque d'un downcasting sans vérification
+    Le downcasting fait l'inverse: on convertit une classe mère en classe fille. Le code
+    compile, mais si l'objet n'est pas vraiment du bon type, le programme plante à
+    l'exécution avec une ClassCastException.
+
+4) Exemple de ClassCastException
+    Employee m = new Manager("Zoé", 4000, 500);
+    Developer d = (Developer) m;
+    Ça plante car un Manager n'est pas un Developer. Pour corriger, on vérifie d'abord
+    le type avec instanceof avant de caster:
+    if (m instanceof Developer d) { ... } else { ... }
+
+5) Pattern matching de instanceof
+    Depuis Java 16, on peut écrire if (employee instanceof BackendDeveloper backendDeveloper).
+    En une seule ligne ça vérifie le type, fait le cast et crée la variable. C'est plus
+    court et plus sûr.
+
+
+Partie G:
+
+1) En quoi ce test mesure la flexibilité de la hiérarchie
+    J'ai ajouté FrontendDeveloper qui hérite de Developer avec une prime de design. J'ai
+    juste créé la classe, implémenté calculateSalary() et ajouté un objet dans la liste.
+    La boucle n'a pas été modifiée et fonctionne toujours. Ça montre qu'on peut ajouter
+    un nouveau type d'employé sans toucher au code existant, car la boucle ne dépend que
+    de Employee et pas des classes filles.
+
+
+Partie H:
+
+1) Avantages de cette hiérarchie
+    Le code commun (nom, getName(), describe()) n'est écrit qu'une seule fois dans
+    Employee. Grâce au polymorphisme, on traite tous les employés avec une seule boucle.
+    On peut facilement ajouter un nouveau type d'employé, et chaque classe fille est
+    obligée de définir son calcul de salaire.
+
+2) Problèmes d'un héritage trop profond
+    Le code devient difficile à comprendre car il faut remonter plusieurs classes pour
+    savoir d'où vient une méthode. Les classes sont très liées entre elles: si on modifie
+    une classe en haut, ça peut casser toutes les classes en dessous. C'est aussi rigide
+    car une classe ne peut avoir qu'une seule classe mère.
+
+3) Quand préférer la composition ?
+    Quand la relation est "a un" plutôt que "est un", ou quand un comportement doit
+    pouvoir changer. Par exemple, au lieu de créer une classe fille pour chaque type de
+    prime (BackendDeveloper, FrontendDeveloper...), on pourrait donner à Developer un
+    objet BonusPolicy qui calcule la prime. On évite ainsi de multiplier les classes.
+
+4) Pourquoi documenter le choix classe abstraite / interface ?
+    Ce choix a des conséquences sur tout le projet: une classe ne peut hériter que d'une
+    seule classe abstraite, et si on modifie une interface il faut modifier toutes les
+    classes qui l'implémentent. Le documenter permet aux autres développeurs de comprendre
+    pourquoi le modèle est fait comme ça et de le faire évoluer sans le casser.
+
+
+Questions de synthèse:
+
+1) Peut-on instancier directement une classe abstraite ?
+    Non, on peut seulement instancier ses classes filles. Par contre on peut l'utiliser
+    comme type de variable: Employee e = new Developer(...).
+
+2) Qu'est-ce qu'une méthode abstraite ?
+    C'est une méthode déclarée sans code avec le mot-clé abstract. Chaque classe fille
+    est obligée de l'implémenter.
+
+3) Combien d'interfaces une classe Java peut-elle implémenter ?
+    Autant qu'elle veut, alors qu'elle ne peut hériter que d'une seule classe.
+
+4) Que garantit @Override ?
+    Le compilateur vérifie que la méthode redéfinit bien une méthode qui existe dans la
+    classe mère ou dans une interface. Si on fait une faute dans le nom ou les paramètres,
+    on a une erreur au lieu de créer une nouvelle méthode sans s'en rendre compte.
+
+5) Qu'est-ce que le polymorphisme ?
+    C'est le fait qu'un même appel de méthode donne un résultat différent selon le type
+    réel de l'objet. Par exemple calculateSalary() ne calcule pas la même chose pour un
+    Developer et un Manager.
+
+6) Qu'est-ce que l'upcasting ?
+    C'est mettre un objet d'une classe fille dans une variable du type de la classe mère.
+    C'est automatique et toujours sûr.
+
+7) Pourquoi utiliser instanceof avant un downcasting ?
+    Pour vérifier que l'objet est vraiment du type voulu avant de le convertir, et éviter
+    une ClassCastException.
+
+8) Principal risque d'un héritage trop profond ?
+    Les classes deviennent trop dépendantes les unes des autres: le code est rigide,
+    difficile à maintenir, et une modification en haut de la hiérarchie peut casser
+    toutes les classes en dessous.
+
+
